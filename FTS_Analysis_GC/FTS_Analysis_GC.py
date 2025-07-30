@@ -27,10 +27,7 @@ def collect_chromatogram_files(experiment_path):
                 AuxLeftList.append(os.path.join(root, name))
             if 'TCD_AuxRight' in name:
                 AuxRightList.append(os.path.join(root, name))
-    FID_0 = pd.read_csv(FIDList[0], names=['Time', 'Step', 'Value'], sep='\t', skiprows=43) if FIDList else None
-    AuxLeft_0 = pd.read_csv(AuxLeftList[0], names=['Time', 'Step', 'Value'], sep='\t', skiprows=43) if AuxLeftList else None
-    AuxRight_0 = pd.read_csv(AuxRightList[0], names=['Time', 'Step', 'Value'], sep='\t', skiprows=43) if AuxRightList else None
-    return FIDList, AuxLeftList, AuxRightList, FID_0, AuxLeft_0, AuxRight_0
+    return FIDList, AuxLeftList, AuxRightList
 
 class chromatogram_FTGC:
     def __init__(self, filename, datetime_start):
@@ -68,14 +65,13 @@ class chromatogram_HTHPGC:
         elif 'TCD' in self.time_str_:
             self.time_str = self.time_str_.split('Ch2_3_')[-1]
         else:
-            self.time_str = self.time_str_  # fallback
+            raise ValueError(f"Unrecognized filename format: {self.Name}")
         # Convert Dutch to English months if needed
-        self.time_str = self.time_str.replace('okt', 'oct').replace('mei', 'may')
+        self.time_str = self.time_str.replace('mrt', 'mar').replace('okt', 'oct').replace('mei', 'may')
         self.file_datetime = pd.to_datetime(self.time_str, format='%d-%b-%Y %H_%M', errors='coerce')
         self.DateTimeFromStart = self.file_datetime - datetime_start
         self.MinutesFromStart = round(self.DateTimeFromStart.total_seconds() / 60)
         self.df = self.df.astype('float')
-
 
 class chromatogram_LPIRGC:
     def __init__(self, filename, datetime_start):
@@ -117,8 +113,6 @@ def collect_chromatogram_filesAll(experiment_path, setup: str = 'FTGC'):
     FIDList = []
     AuxLeftList = []
     AuxRightList = []
-    
-    # fix for LPIRGC!!
 
     # File matching patterns based on setup
     if setup == 'FTGC':
@@ -147,12 +141,7 @@ def collect_chromatogram_filesAll(experiment_path, setup: str = 'FTGC'):
             if right_pattern and right_pattern in name:
                 AuxRightList.append(full_path)
 
-    # Read first file previews if available
-    FID_0 = pd.read_csv(FIDList[0], names=['Time', 'Step', 'Value'], sep='\t', skiprows=43) if FIDList else None
-    AuxLeft_0 = pd.read_csv(AuxLeftList[0], names=['Time', 'Step', 'Value'], sep='\t', skiprows=43) if AuxLeftList else None
-    AuxRight_0 = pd.read_csv(AuxRightList[0], names=['Time', 'Step', 'Value'], sep='\t', skiprows=43) if AuxRightList else None
-
-    return FIDList, AuxLeftList, AuxRightList, FID_0, AuxLeft_0, AuxRight_0
+    return FIDList, AuxLeftList, AuxRightList
 
 def read_logfile(experiment_path, gases_to_plot=None, datetime_start=None, plot_against='TOS'):
     """
@@ -168,23 +157,24 @@ def read_logfile(experiment_path, gases_to_plot=None, datetime_start=None, plot_
         pd.DataFrame: Processed logfile with DateTime index and 'TOS' column (in minutes).
     """
     # Step 1: Collect .txt logfiles
-    logfile_files = sorted([f for f in os.listdir(experiment_path) if f.endswith('.txt')])
+    DataDict = os.path.join(experiment_path, 'log')
+    logfile_files = sorted([f for f in os.listdir(DataDict) if f.endswith('.txt')])
     if not logfile_files:
         raise ValueError('No logfile found in the specified path.')
     
     # Step 2: Read header from first logfile
-    df1 = pd.read_csv(os.path.join(experiment_path, logfile_files[0]), header=None, sep='\t', skiprows=1, nrows=1)
+    df1 = pd.read_csv(os.path.join(DataDict, logfile_files[0]), header=None, sep='\t', skiprows=1, nrows=1)
     header_row = df1.iloc[0].tolist()
 
     # Step 3: Read and combine logfiles
     if len(logfile_files) > 1:
         print('Multiple logfiles found! Combining them...')
         logfile = pd.concat([
-            pd.read_csv(os.path.join(experiment_path, f), sep='\t', skiprows=2, names=header_row)
+            pd.read_csv(os.path.join(DataDict, f), sep='\t', skiprows=2, names=header_row)
             for f in logfile_files
         ])
     else:
-        logfile = pd.read_csv(os.path.join(experiment_path, logfile_files[0]), sep='\t', skiprows=2, names=header_row)
+        logfile = pd.read_csv(os.path.join(DataDict, logfile_files[0]), sep='\t', skiprows=2, names=header_row)
     
     # Step 4: Parse datetime and filter for Valve 9 ON (reactor line)
     logfile.index = pd.to_datetime(logfile['Date/Time'], format='%d-%b-%Y %H:%M:%S', errors='coerce')
@@ -294,13 +284,7 @@ def chromatogram(file_list, file_type:str=Literal['FID', 'AuxLeft', 'AuxRight'],
 
     return df_combined, datetime_start
 
-def chromatogramAll(
-    file_list,
-    setup: Literal['HTHPGC', 'FTGC', 'LPIRGC'],
-    output_path,
-    output_name,
-    fid_reference_list=None
-):
+def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC'], output_path=None, output_name=None):
     """
     Processes chromatogram files for a given setup ('HTHPGC' or 'FTGC'),
     aligns them by minutes from experiment start time, and saves to CSV.
@@ -310,7 +294,6 @@ def chromatogramAll(
         setup (str): Either 'HTHPGC' or 'FTGC'.
         output_path (str): Folder to save the output CSV.
         output_name (str): Output CSV filename.
-        fid_reference_list (list of str): Required for HTHPGC to determine datetime_start.
 
     Returns:
         df_combined (pd.DataFrame): Combined chromatogram data.
@@ -320,16 +303,21 @@ def chromatogramAll(
 
     # 1. Determine datetime_start based on setup
     if setup == 'HTHPGC':
-        if not fid_reference_list:
-            raise ValueError("fid_reference_list is required for setup='HTHPGC'")
         start_times = []
-        for fid in fid_reference_list:
-            fid_name = os.path.basename(fid)
-            time_str = fid_name.split('FID_Ch1_')[-1].split('.txt')[0]
-            time_str = time_str.replace('okt', 'oct').replace('mei', 'may')     # change for other setups
+        for file in file_list:
+            base = os.path.splitext(os.path.basename(file))[0]
+            if base.startswith('FID_Ch1_'):
+                time_str = base.split('FID_Ch1_')[-1]
+            elif base.startswith('TCD_Ch2_3_'):
+                time_str = base.split('TCD_Ch2_3_')[-1]
+            else:
+                continue # Skip unrecognized files
+            time_str = time_str.replace('mrt', 'mar').replace('okt', 'oct').replace('mei', 'may')     
             dt = pd.to_datetime(time_str, format='%d-%b-%Y %H_%M', errors='coerce')
-            start_times.append(dt)
+            if pd.notna(dt):    
+                start_times.append(dt)
         datetime_start = min(start_times)
+
     elif setup == 'FTGC':
         start_times = []
         for file in file_list:
@@ -342,11 +330,11 @@ def chromatogramAll(
                 time_str = base.split('TCD_AuxRight_')[-1]
             else:
                 continue  # Skip unrecognized files
-
             dt = pd.to_datetime(time_str, format='%d-%b-%Y %H_%M', errors='coerce')
             if pd.notna(dt):
                 start_times.append(dt)
         datetime_start = min(start_times)
+    
     elif setup == 'LPIRGC':
         start_times = []
         for file in file_list:
@@ -357,7 +345,6 @@ def chromatogramAll(
                 time_str = base.split('Detector 2_')[-1]
             else:
                 continue  # Skip unrecognized files
-
             dt = pd.to_datetime(time_str, format='%d_%b_%Y %H_%M', errors='coerce')
             if pd.notna(dt):
                 start_times.append(dt)
@@ -367,9 +354,12 @@ def chromatogramAll(
 
     # 2. Load from cache if CSV exists
     if os.path.isfile(output_file):
-        print(f"[INFO] [INFO] Data is already loaded: {output_name} exists in {output_path}.")
-        df_combined = pd.read_csv(output_file, index_col=0, low_memory=False)
-        return df_combined, datetime_start
+        print(f"[INFO] Data is already loaded: {output_name} exists in {output_path}.")
+        gc_combined = pd.read_csv(output_file, index_col=0, low_memory=False)
+        gc_combined = gc_combined.replace(',', '', regex=True)  # Remove commas if present
+        gc_combined.columns = gc_combined.columns.astype('float')  # Ensure all values are float
+        gc_combined = gc_combined.sort_index(axis=1)  # Sort columns by time
+        return gc_combined, datetime_start
 
     # 3. Process chromatograms
     chromatogram_dict = {}
@@ -385,13 +375,18 @@ def chromatogramAll(
         chromatogram_dict['Time'] = chromo.df['Time']
 
     # 4. Combine and export
-    df_combined = pd.DataFrame.from_dict(chromatogram_dict)
-    df_combined.index = chromo.df['Time']
-    df_combined = df_combined.drop(columns='Time')
-    df_combined.to_csv(output_file)
+    gc_combined = pd.DataFrame.from_dict(chromatogram_dict)
+    gc_combined.index = chromo.df['Time']
+    gc_combined = gc_combined.drop(columns='Time')
+    gc_combined.to_csv(output_file)
+    gc_combined = gc_combined.replace(',', '', regex=True)  # Remove commas if present
+    gc_combined.columns = gc_combined.columns.astype('float')  # Ensure all values are float
+    gc_combined = gc_combined.sort_index(axis=1)  # Sort columns by time
+    
 
     print(f"[INFO] Chromatogram saved to: {output_file}")
-    return df_combined, datetime_start
+    return gc_combined, datetime_start
+
 
 def plot_chromatogram(
     df_list,
@@ -552,14 +547,12 @@ def parse_logfile_areas(area_df, log_df):
     combined_df = combined_df.set_index('TOS')
 
     return combined_df
-experiment_name = ''
-peak_names = []
 
 def plot_comined_overview(
     combined_df,
     gas_flow_columns,
-    experiment_name=experiment_name,
-    integration_gases=peak_names,
+    experiment_name=None,
+    integration_gases=None,
     plot_against='TOS',
     xlim=None,
     ax1_ylim=None,
@@ -591,7 +584,7 @@ def plot_comined_overview(
         x_axis = combined_df.index
         x_label = 'Time on Stream (min)'
 
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 12), sharex=True)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(16, 9), sharex=True)
 
     # --- Top Plot: Integration values ---
     for gas in integration_gases:
