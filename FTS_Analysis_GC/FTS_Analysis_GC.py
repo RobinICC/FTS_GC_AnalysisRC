@@ -291,7 +291,7 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC'], outpu
 
     Parameters:
         file_list (list of str): List of chromatogram file paths to process.
-        setup (str): Either 'HTHPGC' or 'FTGC'.
+        setup (str): Either 'HTHPGC', 'FTGC' or 'LPIRGC'.
         output_path (str): Folder to save the output CSV.
         output_name (str): Output CSV filename.
 
@@ -391,9 +391,9 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC'], outpu
 def plot_chromatogram(
     df_list,
     labels=None,
-    tos_range=(0, 200),
+    tos_range=None,
     show_legend=False,
-    show_peaks=True,
+    show_peaks=False,
     peak_dict=None,
     colormap='viridis'
 ):
@@ -418,6 +418,12 @@ def plot_chromatogram(
 
     for i, (df, label) in enumerate(zip(df_list, labels)):
         ax = axes[i]
+        # Determine TOS range dynamically if not provided
+        if tos_range is None:
+            col_floats = [float(col) for col in df.columns]
+            min_tos = min(col_floats)
+            max_tos = max(col_floats)
+            tos_range = (min_tos, max_tos)
         # Filter by TOS range
         cols = [col for col in df.columns if tos_range[0] <= float(col) <= tos_range[1]]
         df_sub = df[cols]
