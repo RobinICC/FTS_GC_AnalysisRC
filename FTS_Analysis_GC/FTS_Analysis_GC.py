@@ -6,29 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 experiment_path=None
-def collect_chromatogram_files(experiment_path):
-    """
-    Collects file lists for FID, TCD_AuxLeft, and TCD_AuxRight chromatograms and loads the first file from each list.
-    Args:
-        experiment_path (str): Path to the experiment directory.
-    Returns:
-        tuple: (FIDList, AuxLeftList, AuxRightList, FID_0, AuxLeft_0, AuxRight_0)
-    """
-    # Collect chromatogram files
-    DataDict = os.path.join(experiment_path, 'chromatograms')
-    FIDList = []
-    AuxRightList = []
-    AuxLeftList = []
-    for root, dirs, files in os.walk(DataDict, topdown=True):
-        for name in files:
-            if 'FID_' in name:
-                FIDList.append(os.path.join(root, name))
-            if 'TCD_AuxLeft' in name:
-                AuxLeftList.append(os.path.join(root, name))
-            if 'TCD_AuxRight' in name:
-                AuxRightList.append(os.path.join(root, name))
-    return FIDList, AuxLeftList, AuxRightList
-
 class chromatogram_FTGC:
     def __init__(self, filename, datetime_start):
         self.df = pd.read_csv(filename, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
@@ -633,5 +610,374 @@ def plot_comined_overview(
         ax1.set_xlim(xlim)
 
     plt.tight_layout()
+    plt.show()
+
+def collect_chromatogram(experiment_path):
+    """
+    Collects file lists for FID, TCD_AuxLeft, and TCD_AuxRight chromatograms and loads the first file from each list.
+    Args:
+        experiment_path (str): Path to the experiment directory.
+    Returns:
+        tuple: (chromatogramlist, FIDList, AuxLeftList, AuxRightList)
+        chromatogramlist is a list of all chromatograms, the others are only of that respective detector.
+    """
+        # Collect chromatogram files
+    DataDict = os.path.join(experiment_path, 'chromatograms')
+    chromatogramlist = []
+    FIDList = []
+    AuxLeftList = []
+    AuxRightList = []
+    for root, dirs, files in os.walk(DataDict, topdown=True):
+        for name in files:
+            if 'FID_' in name:
+                FIDList.append(os.path.join(root, name))
+            if 'TCD_AuxLeft' in name:
+                AuxLeftList.append(os.path.join(root, name))
+            if 'TCD_AuxRight' in name:
+                AuxRightList.append(os.path.join(root, name))
+            chromatogramlist.append(os.path.join(root, name))
+    return chromatogramlist, FIDList, AuxLeftList, AuxRightList
+
+class Chromatogram:
+    def __init__(self, FID_filepath):
+        # General section
+        self.file_datetime = None  # Will be set when loading chromatogram
+        # FID section
+        self.FID_file_path = FID_filepath # this is the only required parameter when creating a chromatogram object, the rest will be loaded later
+        self.FID_filename = None
+        self.FID_chromatogram = None # Will be set when loading chromatogram
+        self.FID_baseline_corrected_chromatogram = None # Will be set when baseline correction is applied
+        # TCD_AuxLeft section
+        self.TCDLeft_file_path = None
+        self.TCDLeft_filename = None
+        self.TCDLeft_chromatogram = None # Will be set when loading chromatogram
+        #self.TCDLeft_baseline_corrected_chromatogram = None # Will be set when baseline correction is applied
+        # TCD_AuxRight section
+        self.TCDRight_file_path = None
+        self.TCDRight_filename = None
+        self.TCDRight_chromatogram = None # Will be set when loading chromatogram
+        #self.TCDRight_baseline_corrected_chromatogram = None # Will be set when baseline correction is applied
+        # peak integration section
+        self.CO2_area = None # Will be set when integrating CO2 peak
+        self.Ar_area = None # Will be set when integrating Ar peak
+        self.N2_area = None # Will be set when integrating N2 peak
+        self.CO_area = None # Will be set when integrating CO peak
+        self.C1_area = None # Will be set when integrating CH4 peak
+        self.C2_area = None # Will be set when integrating C2H6 peak
+        self.C3_area = None # Will be set when integrating C2H4 peak
+        self.H2_area = None # Will be set when integrating H2 peak
+        # calculation section
+        self.CO2_conversion = None # Will be set when calculating CO2 conversion
+        
+    def __repr__(self):
+        return (f"file_datetime = {self.file_datetime},\n"
+                f"FID_file_path = {self.FID_file_path},\n"
+                f"FID_filename = {self.FID_filename},\n"
+                f"FID_chromatogram = {self.FID_chromatogram},\n"
+                f"FID_baseline_corrected_chromatogram = {self.FID_baseline_corrected_chromatogram},\n"
+                f"TCDLeft_file_path = {self.TCDLeft_file_path},\n"
+                f"TCDLeft_filename = {self.TCDLeft_filename},\n"
+                f"TCDLeft_chromatogram = {self.TCDLeft_chromatogram},\n"
+                f"TCDRight_file_path = {self.TCDRight_file_path},\n"
+                f"TCDRight_filename = {self.TCDRight_filename},\n"
+                f"TCDRight_chromatogram = {self.TCDRight_chromatogram},\n"
+                f"CO2_area = {self.CO2_area},\n"
+                f"Ar_area = {self.Ar_area},\n"
+                f"N2_area = {self.N2_area},\n"
+                f"CO_area = {self.CO_area},\n"
+                f"C1_area = {self.C1_area},\n"
+                f"C2_area = {self.C2_area},\n"
+                f"C3_area = {self.C3_area},\n"
+                f"H2_area = {self.H2_area}\n"
+                )
+
+    def load_chromatogram(self, file_path):
+        if 'FID_' in file_path:
+            self.FID_chromatogram = pd.read_csv(file_path, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
+            self.FID_chromatogram.replace('n.a.', 0, regex=True, inplace=True)  # Fill NaN values with 0
+            self.FID_chromatogram.replace(',', '', regex=True, inplace=True)  # Remove commas if present
+            self.FID_chromatogram['Time'] = self.FID_chromatogram['Time'].astype(float)  # Ensure Time is float
+            self.FID_chromatogram['Value'] = self.FID_chromatogram['Value'].astype(float)  # Ensure Value is float
+            self.FID_chromatogram['Step'] = self.FID_chromatogram['Step'].astype(float)  # Ensure Step is float
+
+        elif 'TCD_AuxLeft' in file_path:
+            self.TCDLeft_chromatogram = pd.read_csv(file_path, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
+            self.TCDLeft_chromatogram.replace('n.a.', 0, regex=True, inplace=True)  # Fill NaN values with 0
+            self.TCDLeft_chromatogram.replace(',', '', regex=True, inplace=True)  # Remove commas if present
+            self.TCDLeft_chromatogram['Time'] = self.TCDLeft_chromatogram['Time'].astype(float)  # Ensure Time is float
+            self.TCDLeft_chromatogram['Value'] = self.TCDLeft_chromatogram['Value'].astype(float)  # Ensure Value is float
+            self.TCDLeft_chromatogram['Step'] = self.TCDLeft_chromatogram['Step'].astype(float)  # Ensure Step is float
+
+        elif 'TCD_AuxRight' in file_path:
+            self.TCDRight_chromatogram = pd.read_csv(file_path, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
+            self.TCDRight_chromatogram.replace('n.a.', 0, regex=True, inplace=True)  # Fill NaN values with 0
+            self.TCDRight_chromatogram.replace(',', '', regex=True, inplace=True)  # Remove commas if present
+            self.TCDRight_chromatogram['Time'] = self.TCDRight_chromatogram['Time'].astype(float)  # Ensure Time is float
+            self.TCDRight_chromatogram['Value'] = self.TCDRight_chromatogram['Value'].astype(float)  # Ensure Value is float
+            self.TCDRight_chromatogram['Step'] = self.TCDRight_chromatogram['Step'].astype(float)  # Ensure Step is float
+
+    def create_objects(self, file_path):
+        """
+        Create chromatogram objects for FID, TCD_AuxLeft, and TCD_AuxRight.
+        Args:
+            file_path (str): Path to the chromatogram file.
+        """
+        print(f"Processing file: {file_path}")
+        if 'FID_' in file_path:
+            self.FID_file_path = file_path
+            self.FID_filename = self.FID_file_path.split('\\')[-1]  # Extract file name from full path
+            parts = self.FID_filename.rsplit('_', 2)
+            date = parts[1]
+            time = parts[2].replace('.txt', '')
+            time = date[12:14] + ':' + time[:2] #this extra code adds the last part of the date column to the time column, since the splitting on '_' also created problems here
+            date = date[:11]
+            datetime_str = f"{date} {time}" #this creates a string with the date and time
+            self.file_datetime = pd.to_datetime(datetime_str, format='%d-%b-%Y %H_%M', errors='coerce')# Convert to datetime object
+            self.load_chromatogram(file_path) # use the load_chromatogram method to load the corresponding chromatogram
+        elif 'TCD_AuxLeft' in file_path:
+            self.TCDLeft_file_path = file_path
+            self.TCDLeft_filename = self.TCDLeft_file_path.split('\\')[-1]  # Extract file name from full path
+            self.load_chromatogram(file_path) # use the load_chromatogram method to load the corresponding chromatogram
+        elif 'TCD_AuxRight' in file_path:
+            self.TCDRight_file_path = file_path
+            self.TCDRight_filename = self.TCDRight_file_path.split('\\')[-1]  # Extract file name from full path
+            self.load_chromatogram(file_path) # use the load_chromatogram method to load the corresponding chromatogram
+        else:
+            raise ValueError(f"Unknown chromatogram type in filename: {file_path}")
+            
+    def apply_baseline_correction(self):
+        """
+        Apply baseline correction to the chromatogram's 'Value' column.
+        Args:
+            None
+        
+        Output:
+            it stores the baseline corrected chromatogram in the object but does not overwrite the original one. 
+        """
+        if self.FID_chromatogram is None:
+            raise ValueError("Chromatogram data not loaded. Call load_chromatogram() first.")
+        
+        else:
+            # Define the start and end times for the baseline window
+            baseline_start_time = 0.10  # Replace with your desired start time
+            baseline_end_time = 0.50    # Replace with your desired end time
+
+            # Select the baseline window values
+            baseline_window = self.FID_chromatogram[
+                (self.FID_chromatogram['Time'] >= baseline_start_time) &
+                (self.FID_chromatogram['Time'] <= baseline_end_time)
+            ]['Value']
+
+            # Compute the mean over the baseline period
+            baseline_value = baseline_window.mean()
+            #print(f"Baseline value calculated: {baseline_value}")
+        
+        self.FID_baseline_corrected_chromatogram = self.FID_chromatogram.copy()
+        self.FID_baseline_corrected_chromatogram['Value'] = self.FID_baseline_corrected_chromatogram['Value'] - baseline_value
+        # Ensure no negative values after correction
+        self.FID_baseline_corrected_chromatogram['Value'] = self.FID_baseline_corrected_chromatogram['Value'].clip(lower=0)
+        #print(f"baseline correction applied to {self.FID_filename}")
+
+    def integrate(self, peak_definitions_dict):
+        """
+        Integrate specified peaks from the chromatogram using a nested dictionary.
+
+        Args:
+            peak_definitions_dict (dict): Dictionary where each key is a detector type (e.g., 'FID', 'TCD_AuxLeft', 'TCD_AuxRight'),
+                                          and each value is a dict of {peak_name: (start_time, end_time)}.
+
+        Returns:
+            dict: Nested dictionary with detector types as keys, each containing a dict of peak areas.
+        """
+        results = {}
+
+        # Map detector type to chromatogram attribute
+        detector_map = {
+            'FID': 'FID_baseline_corrected_chromatogram',
+            'TCD_AuxLeft': 'TCDLeft_chromatogram',
+            'TCD_AuxRight': 'TCDRight_chromatogram'
+        }
+
+        for detector, peaks in peak_definitions_dict.items():
+            chromatogram_attr = detector_map.get(detector)
+            df = getattr(self, chromatogram_attr, None)
+            if df is None:
+                continue  # Skip if chromatogram not available
+
+            detector_results = {}
+            for peak_name, times in peaks.items():
+                mask = (df['Time'] >= times["start_time"]) & (df['Time'] <= times["end_time"])
+                peak_df = df.loc[mask]
+                if not peak_df.empty:
+                    area = integrate.trapezoid(y=peak_df['Value'], x=peak_df['Time'])
+                else:
+                    area = 0.0
+                detector_results[peak_name] = area
+                # Set the corresponding attribute if it exists
+                attr_name = f"{peak_name}_area"
+                if hasattr(self, attr_name):
+                    setattr(self, attr_name, area)
+            results[detector] = detector_results
+
+        return results
+
+    def calculate_CO2_conversion(self):
+        """
+        Calculate CO2 conversion based on the areas of CO2 and CH4 peaks.
+        Assumes CO2_area and C1_area are already set.
+        Returns:
+            float: CO2 conversion percentage.
+        """
+        if self.CO2_area is None or self.Ar_area is None:
+            raise ValueError("CO2 and Ar area must be set before calculating conversion.")
+        
+        self.CO2_conversion = (self.CO2_area / (self.CO2_area + self.Ar_area)) * 100
+        print(f"CO2 conversion calculated: {self.CO2_conversion:.2f}%")
+
+def integrate_peaks(chromatograms, peak_definitions_dict):
+    """
+    Integrate specified peaks from the chromatograms using a nested dictionary.
+    Parameters:
+    - chromatograms: List of Chromatogram objects.
+    - peak_definitions_dict: Dictionary where each key is a detector type (e.g., 'FID', 'TCD_AuxLeft', 'TCD_AuxRight'),
+                             and each value is a dict of {peak_name: (start_time, end_time)}.
+    Returns:
+    - pd.DataFrame: DataFrame with each column as a peak area, indexed by time in minutes.
+    """
+    all_peak_names = set()
+    # Collect all unique peak names from the definitions
+    for peaks in peak_definitions_dict.values():
+        all_peak_names.update(peaks.keys())
+
+    data = {peak_name: [] for peak_name in all_peak_names}
+    times_minutes = []
+
+    # Use the first chromatogram's file_datetime as reference (t=0)
+    if chromatograms and hasattr(chromatograms[0], "file_datetime"):
+        t0 = chromatograms[0].file_datetime
+    else:
+        t0 = None
+
+    for chromatogram in chromatograms:
+        chromatogram_results = chromatogram.integrate(peak_definitions_dict)
+        # Flatten all detector results into one dict for this chromatogram
+        flat_results = {}
+        for detector_peaks in chromatogram_results.values():
+            flat_results.update(detector_peaks)
+        for peak_name in all_peak_names:
+            data[peak_name].append(flat_results.get(peak_name, None))
+        # Calculate time in minutes relative to t0
+        if hasattr(chromatogram, "file_datetime") and t0 is not None:
+            delta = chromatogram.file_datetime - t0
+            minutes = delta.total_seconds() / 60.0
+            times_minutes.append(minutes)
+        else:
+            times_minutes.append(None)
+
+    df = pd.DataFrame(data)
+    df.index = times_minutes
+    df.index.name = "Time (min)"
+    return df
+
+def find_catalysis_range(areaDF, reactant):
+    """
+    Find the start and end indices for catalysis based on reactant and N2/H2 criteria.
+    Start: first index where reactant > 1.
+    End: last index (from the end) where N2 > H2.
+    The end index is only considered if it is at the end of the DataFrame (not at the start).
+    Parameters:
+    - areaDF: DataFrame with peak areas.
+    - reactant: str, column name of the reactant peak.
+    Returns:
+    - Tuple (start_idx, end_idx), and the sliced DataFrame.
+    """
+    if reactant not in areaDF.columns:
+        raise ValueError("Reactant not found in dataframe.")
+    if 'N2' not in areaDF.columns or 'H2' not in areaDF.columns:
+        raise ValueError("N2 or H2 not found in dataframe.")
+
+    # Find first index where reactant > 1
+    start_candidates = areaDF.index[areaDF[reactant] > 10]
+    if len(start_candidates) == 0:
+        raise ValueError("No start index found where reactant > 1.")
+    start_idx = start_candidates[0]
+
+    # Find last index where H2 > N2 (from the end)
+    h2_gt_n2 = areaDF['H2'] > areaDF['N2']
+    end_candidates = areaDF.index[h2_gt_n2]
+    if len(end_candidates) == 0:
+        end_idx = areaDF.index[-1]
+    else:
+        end_idx = end_candidates[-1]
+
+    # Slice the DataFrame
+    catalysisDF = areaDF.loc[start_idx:end_idx].copy()
+    # Reset the index so that time starts from 0 again
+    catalysisDF.index = catalysisDF.index - catalysisDF.index[0]
+
+    return (start_idx, end_idx), catalysisDF
+
+
+def convert_area_to_amount(area_df, correction_factors):
+    """
+    Convert area DataFrame to amount DataFrame using correction factors.
+    Parameters:
+    - area_df: DataFrame with peak areas (output from integrate_peaks).
+    - correction_factors: Dictionary with correction factors for each peak name.
+    Returns:
+    - DataFrame with amounts for each peak.
+    """
+    amounts = area_df.copy()
+    for peak_name, factor in correction_factors.items():
+        if peak_name in amounts.columns:
+            amounts[peak_name] = amounts[peak_name] / factor
+    return amounts
+
+def internal_standard_correction(amounts_df, internal_standard, internal_standard_concentration):
+    """
+    Apply internal standard correction to the amounts DataFrame.
+    Parameters:
+    - amounts_df: DataFrame with amounts (output from convert_area_to_amount).
+    - internal_standard: str, column name to use as internal standard (e.g., 'N2' or 'Ar').
+    - internal_standard_concentration: float, known concentration of the internal standard.
+    Returns:
+    - DataFrame with corrected amounts and 'IS_correction_factor' column.
+    """
+    if amounts_df.empty or internal_standard not in amounts_df.columns:
+        raise ValueError(f"Internal standard '{internal_standard}' not found in DataFrame columns.")
+
+    corrected_amounts = amounts_df.copy()
+    # Calculate IS_correction_factor as Ar (or chosen IS) divided by IS_concentration
+    corrected_amounts['IS_correction_factor'] = corrected_amounts[internal_standard] / internal_standard_concentration
+
+    # Ensure no negative values in IS_correction_factor
+    corrected_amounts['IS_correction_factor'] = corrected_amounts['IS_correction_factor'].clip(lower=0.1)
+
+    # Apply correction to all columns except the internal standard and IS_correction_factor
+    for col in corrected_amounts.columns:
+        if col not in [internal_standard, 'IS_correction_factor']:
+            corrected_amounts[col] = corrected_amounts[col] / corrected_amounts['IS_correction_factor']
+
+    return corrected_amounts
+
+def plot_CO2_conversion(chromatograms):
+    """
+    Plot CO2 conversion from the chromatograms.
+    Parameters:
+    - chromatograms: List of Chromatogram objects.
+    """
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+    file_datetimes = []
+    CO2_conversions = []
+
+    for chromatogram in chromatograms:
+        if hasattr(chromatogram, 'file_datetime') and hasattr(chromatogram, 'CO2_conversion'):
+            file_datetimes.append(chromatogram.file_datetime)
+            CO2_conversions.append(chromatogram.CO2_conversion)
+
+    ax.plot(file_datetimes, CO2_conversions, label='CO2 Conversion', marker='o', markersize=8)
+    ax.set_xlabel('Datetime')
+    ax.set_ylabel('CO2 Conversion (%)')
+    ax.legend()
     plt.show()
 
