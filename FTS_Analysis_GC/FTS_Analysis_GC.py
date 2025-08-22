@@ -612,6 +612,51 @@ def plot_comined_overview(
     plt.tight_layout()
     plt.show()
 
+def calculate_conversion_based_on_reactant(df, reactant, reactant_initial_concentration):
+    """
+    Calculates conversion (%) for a single reactant.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame containing reactant concentrations.
+        reactant (str): Reactant column name.
+        reactant_initial_concentration (float): Initial concentration of the reactant.
+
+    Returns:
+        pd.Series: Conversion (%) over time with name 'X conversion (%)'.
+    """
+    reactant_amount = df[reactant]
+    conversion_df = ((reactant_initial_concentration - reactant_amount) / reactant_initial_concentration) * 100
+    conversion_df.name = f"{reactant} conversion (%)"
+    return conversion_df
+
+
+
+def calculate_product_conversions(df, products, reactant_initial_concentration):
+    """
+    Calculates conversion (%) separately for each product over TOS.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame with product amounts (columns) over time (index = TOS).
+        products (list of str): List of product column names to calculate conversion from.
+        reactant_initial_concentration (float): Initial concentration of the reactant.
+
+    Returns:
+        pd.DataFrame: Conversion (%) for each product over time.
+    """
+    # Interpolate missing data if any (forward fill)
+    interpolated_df = df[products].ffill()
+
+    # Initialize a DataFrame to store conversions
+    conversion_df = pd.DataFrame(index=interpolated_df.index)
+
+    # Calculate conversion for each product separately
+    for product in products:
+        converted = interpolated_df[product]
+        conversion = (1 - ((reactant_initial_concentration - converted) / reactant_initial_concentration)) * 100
+        conversion_df[f"{product} conversion (%)"] = conversion
+
+    return conversion_df
+
 def collect_chromatogram(experiment_path):
     """
     Collects file lists for FID, TCD_AuxLeft, and TCD_AuxRight chromatograms and loads the first file from each list.
@@ -759,8 +804,8 @@ class Chromatogram:
         
         else:
             # Define the start and end times for the baseline window
-            baseline_start_time = 0.10  # Replace with your desired start time
-            baseline_end_time = 0.50    # Replace with your desired end time
+            baseline_start_time = 0.6  # Replace with your desired start time
+            baseline_end_time = 0.9    # Replace with your desired end time
 
             # Select the baseline window values
             baseline_window = self.FID_chromatogram[
