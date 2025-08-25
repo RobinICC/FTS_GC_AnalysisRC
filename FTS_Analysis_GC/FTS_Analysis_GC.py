@@ -648,19 +648,82 @@ def calculate_product_conversions(df, products, reactant_initial_concentration):
     Returns:
         pd.DataFrame: Conversion (%) for each product over time.
     """
-    # Interpolate missing data if any (forward fill)
-    interpolated_df = df[products].ffill()
-
-    # Initialize a DataFrame to store conversions
-    conversion_df = pd.DataFrame(index=interpolated_df.index)
-
-    # Calculate conversion for each product separately
-    for product in products:
+    interpolated_df = df[products].ffill()     # Interpolate missing data if any (forward fill)
+    conversion_df = pd.DataFrame(index=interpolated_df.index)  # Initialize a DataFrame to store conversions
+    for product in products:    # Calculate conversion for each product separately
         converted = interpolated_df[product]
         conversion = (1 - ((reactant_initial_concentration - converted) / reactant_initial_concentration)) * 100
         conversion_df[f"{product} conversion (%)"] = conversion
-
     return conversion_df
+
+def plot_experiment_results(
+    metadata_path: str,
+    experiments: list,
+    column: str,
+    ylabel: str = None,
+    xlim: tuple = None,
+    ylim: tuple = None,
+    colors: dict = None,
+    figsize: tuple = (8, 6)
+):
+    """
+    Load multiple FTS experiment results and plot them together.
+
+    Parameters:
+        metadata_path (str): Path to metadata YAML.
+        experiments (list): List of experiment IDs (keys in YAML).
+        column (str): Column name to plot (e.g., "CO conversion (%)", "CTY_corrected").
+        ylabel (str): Y-axis label (default = column).
+        xlim (tuple): X-axis limits (min, max).
+        ylim (tuple): Y-axis limits (min, max).
+        colors (dict): Optional mapping {exp_id: color}.
+        figsize (tuple): Figure size.
+    """
+    # Load metadata
+    all_metadata = load_experiment_metadata(metadata_path)
+
+    dfs = {}
+    for exp_id in experiments:
+        exp_meta = all_metadata[exp_id]
+        exp_path = os.path.join(exp_meta["root"], exp_meta["folder_name"])
+        excel_path = os.path.join(exp_path, f"all_results_{exp_id}.xlsx")
+
+        if not os.path.isfile(excel_path):
+            print(f"[WARNING] File not found: {excel_path}")
+            continue
+
+        dfs[exp_id] = pd.read_excel(excel_path, index_col=0)
+
+    # Plot
+    fig, ax = plt.subplots(figsize=figsize)
+
+    for exp_id, df in dfs.items():
+        if column not in df.columns:
+            print(f"[WARNING] Column '{column}' not found in {exp_id}")
+            continue
+
+        df[column].plot(
+            ax=ax,
+            marker="o",
+            linestyle="",
+            label=exp_id,
+            c=colors.get(exp_id, None) if colors else None
+        )
+
+    ax.set_xlabel("Time on stream (min)", fontsize=14)
+    ax.set_ylabel(ylabel if ylabel else column, fontsize=14)
+
+    if xlim:
+        ax.set_xlim(*xlim)
+    if ylim:
+        ax.set_ylim(*ylim)
+
+    ax.xaxis.set_tick_params(labelsize=14)
+    ax.yaxis.set_tick_params(labelsize=14)
+    ax.legend(title="Experiment", fontsize=12)
+    plt.tight_layout()
+    plt.show()
+
 
 def collect_chromatogram(experiment_path):
     """
@@ -883,6 +946,8 @@ class Chromatogram:
         
         self.CO2_conversion = (self.CO2_area / (self.CO2_area + self.Ar_area)) * 100
         print(f"CO2 conversion calculated: {self.CO2_conversion:.2f}%")
+    
+    
 
 def integrate_peaks(chromatograms, peak_definitions_dict):
     """
