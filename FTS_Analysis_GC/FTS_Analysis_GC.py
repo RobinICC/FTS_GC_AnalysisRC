@@ -4,8 +4,12 @@ import os
 from typing import Literal
 import matplotlib.pyplot as plt
 import numpy as np
+import yaml
 
-experiment_path=None
+def load_experiment_metadata(path: str) -> dict:
+    with open(path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
 class chromatogram_FTGC:
     def __init__(self, filename, datetime_start):
         self.df = pd.read_csv(filename, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
@@ -193,6 +197,7 @@ def read_logfile(experiment_path, gases_to_plot=None, datetime_start=None, plot_
     return logfile, x_axis, gas_columns, plot_against
 
 FIDList=[]
+experiment_path=None
 def chromatogram(file_list, file_type:str=Literal['FID', 'AuxLeft', 'AuxRight'], fid_reference_list=FIDList, output_path=experiment_path, output_name:str=Literal['FID_total1.csv', 'AuxLeft_total1.csv', 'AuxRight_total1.csv']):    
     """
     Processes chromatogram files, aligns them by minutes from FID start time,
