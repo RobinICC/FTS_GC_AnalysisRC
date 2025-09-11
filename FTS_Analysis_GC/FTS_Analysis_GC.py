@@ -51,7 +51,7 @@ class chromatogram_TWOSTAGE:
         else:
             raise ValueError(f"Unrecognized filename format: {self.Name}")
         self.time_str = time_str  # e.g., '06-Apr-2025 16_29'
-        self.file_datetime = pd.to_datetime(self.time_str, format='%d-%b-%Y %H_%M', errors='coerce')
+        self.file_datetime = pd.to_datetime(self.time_str, format='%d_%b_%Y %H_%M', errors='coerce')
 
         self.DateTimeFromStart = self.file_datetime - datetime_start
         self.MinutesFromStart = round(self.DateTimeFromStart.total_seconds() / 60)
@@ -372,7 +372,7 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC', 'TWOST
                 time_str = base.split('AuxRightDetector_')[-1]
             else:
                 continue  # Skip unrecognized files
-            dt = pd.to_datetime(time_str, format='%d-%b-%Y %H_%M', errors='coerce')
+            dt = pd.to_datetime(time_str, format='%d_%b_%Y %H_%M', errors='coerce')
             if pd.notna(dt):
                 start_times.append(dt)
         datetime_start = min(start_times)
