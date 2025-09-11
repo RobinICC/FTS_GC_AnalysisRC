@@ -33,6 +33,30 @@ class chromatogram_FTGC:
         self.DateTimeFromStart = self.file_datetime - datetime_start
         self.MinutesFromStart = round(self.DateTimeFromStart.total_seconds() / 60)
 
+class chromatogram_TWOSTAGE:
+    def __init__(self, filename, datetime_start):
+        self.df = pd.read_csv(filename, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
+        self.df = self.df.replace(',', '', regex=True)
+        #self.df = self.df.astype('float')
+
+        self.Name = os.path.basename(filename)
+        base = self.Name.split('.txt')[0]
+        # Determine where the timestamp starts
+        if base.startswith('FrontDetector_'):
+            time_str = base.split('FrontDetector_')[-1]
+        elif base.startswith('AuxLeftDetector_'):
+            time_str = base.split('AuxLeftDetector_')[-1]
+        elif base.startswith('AuxRightDetector_'):
+            time_str = base.split('AuxRightDetector_')[-1]
+        else:
+            raise ValueError(f"Unrecognized filename format: {self.Name}")
+        self.time_str = time_str  # e.g., '06-Apr-2025 16_29'
+        self.file_datetime = pd.to_datetime(self.time_str, format='%d-%b-%Y %H_%M', errors='coerce')
+
+        self.DateTimeFromStart = self.file_datetime - datetime_start
+        self.MinutesFromStart = round(self.DateTimeFromStart.total_seconds() / 60)
+
+
 class chromatogram_HTHPGC:
     def __init__(self, filename, datetime_start):
         self.df = pd.read_csv(filename, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
@@ -76,7 +100,7 @@ class chromatogram_LPIRGC:
         self.MinutesFromStart = round(self.DateTimeFromStart.total_seconds() / 60)
 
 
-def collect_chromatogram_filesAll(experiment_path, setup: str = 'FTGC'):
+def collect_chromatogram_filesAll(experiment_path, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC', 'TWOSTAGE']):
     """
     Collects chromatogram file lists and loads the first file for preview, based on setup type.
 
@@ -85,7 +109,7 @@ def collect_chromatogram_filesAll(experiment_path, setup: str = 'FTGC'):
         setup (str): Either 'FTGC' or 'HTHPGC' indicating the naming pattern of the chromatogram files.
 
     Returns:
-        tuple: (FIDList, AuxLeftList, AuxRightList, FID_0, AuxLeft_0, AuxRight_0)
+        tuple: (FIDList, AuxLeftList, AuxRightList)
     """
     # Path to chromatogram files
     DataDict = os.path.join(experiment_path, 'chromatograms')
@@ -108,8 +132,12 @@ def collect_chromatogram_filesAll(experiment_path, setup: str = 'FTGC'):
         fid_pattern = 'Detector 1_'
         left_pattern = 'Detector 2_'  # No AuxLeft for LPIRGC
         right_pattern = ''  # No AuxRight for LPIRGC
+    elif setup == 'TWOSTAGE':
+        fid_pattern = 'FrontDetector_'
+        left_pattern = 'AuxLeftDetector_'
+        right_pattern = 'AuxRightDetector_'
     else:
-        raise ValueError(f"Unknown setup: {setup}. Must be 'FTGC', 'HTHPGC' or 'LPIRGC'.")
+        raise ValueError(f"Unknown setup: {setup}. Must be 'FTGC', 'HTHPGC', 'LPIRGC', or 'TWOSTAGE'.")
 
     # Traverse the directory
     for root, dirs, files in os.walk(DataDict, topdown=True):
@@ -266,7 +294,7 @@ def chromatogram(file_list, file_type:str=Literal['FID', 'AuxLeft', 'AuxRight'],
 
     return df_combined, datetime_start
 
-def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC'], output_path=None, output_name=None):
+def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC', 'TWOSTAGE'], output_path=None, output_name=None):
     """
     Processes chromatogram files for a given setup ('HTHPGC' or 'FTGC'),
     aligns them by minutes from experiment start time, and saves to CSV.
@@ -331,6 +359,23 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC'], outpu
             if pd.notna(dt):
                 start_times.append(dt)
         datetime_start = min(start_times)
+    
+    elif setup == 'TWOSTAGE':
+        start_times = []
+        for file in file_list:
+            base = os.path.splitext(os.path.basename(file))[0]
+            if base.startswith('FrontDetector_'):
+                time_str = base.split('FrontDetector_')[-1]
+            elif base.startswith('AuxLeftDetector_'):
+                time_str = base.split('AuxLeftDetector_')[-1]
+            elif base.startswith('AuxRightDetector_'):
+                time_str = base.split('AuxRightDetector_')[-1]
+            else:
+                continue  # Skip unrecognized files
+            dt = pd.to_datetime(time_str, format='%d-%b-%Y %H_%M', errors='coerce')
+            if pd.notna(dt):
+                start_times.append(dt)
+        datetime_start = min(start_times)
     else:
         raise ValueError(f"Unsupported setup: {setup}")
 
@@ -352,6 +397,8 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC'], outpu
             chromo = chromatogram_FTGC(file_path, datetime_start)
         elif setup == 'LPIRGC':
             chromo = chromatogram_LPIRGC(file_path, datetime_start)
+        elif setup == 'TWOSTAGE':
+            chromo = chromatogram_TWOSTAGE(file_path, datetime_start)
 
         chromatogram_dict[chromo.MinutesFromStart] = chromo.df['Value']
         chromatogram_dict['Time'] = chromo.df['Time']
@@ -720,6 +767,7 @@ def plot_experiment_results(
 
     ax.xaxis.set_tick_params(labelsize=14)
     ax.yaxis.set_tick_params(labelsize=14)
+    ax.grid(axis='y', linestyle='--', alpha=0.6)
     ax.legend(title="Experiment", fontsize=12)
     plt.tight_layout()
     plt.show()
