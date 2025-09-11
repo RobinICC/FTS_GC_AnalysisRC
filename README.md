@@ -34,7 +34,7 @@ My_Scripts
 ```
 
 ## Usage
-With only a few simple steps, you can import, view, intergrate GC data data form Chromeleon with online GC setups from the FTS setup DDW ('FTGC'), high temperature high pressure IR ('HTHPGC'), the low pressure IR ('LPIRGC'):
+With only a few simple steps, you can import, view, intergrate GC data data form Chromeleon with online GC setups from the FTS setup DDW ('FTGC'), high temperature high pressure IR ('HTHPGC'), the low pressure IR ('LPIRGC') and the TwoStage setup ('TWOSTAGE'):
 1. Find your data and collect chromatogram files with collect_chromatogram_filesAll() function
   a. Define your experiment_path where you have a folder called 'chromatograms'. Here must alll your raw .txt chromatograms files be placed. When you export them with 'Bram method' from Chromoleon, they should be in the form of 'FID_16-Jun-2025 16_26.txt'. This name differs per setup but they have to contain some sort of datetime in the filename
   b. This function will return a list of filenames per channel of your GC
