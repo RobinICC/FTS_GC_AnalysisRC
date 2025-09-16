@@ -224,76 +224,6 @@ def read_logfile(experiment_path, gases_to_plot=None, datetime_start=None, plot_
     
     return logfile, x_axis, gas_columns, plot_against
 
-FIDList=[]
-experiment_path=None
-def chromatogram(file_list, file_type:str=Literal['FID', 'AuxLeft', 'AuxRight'], fid_reference_list=FIDList, output_path=experiment_path, output_name:str=Literal['FID_total1.csv', 'AuxLeft_total1.csv', 'AuxRight_total1.csv']):    
-    """
-    Processes chromatogram files, aligns them by minutes from FID start time,
-    and optionally saves to CSV unless the output already exists.
-
-    Parameters:
-        file_list (list of str): List of chromatogram file paths to process.
-        file_type (str): The file type identifier in filenames (e.g., 'FID', 'AuxLeft').
-        fid_reference_list (list of str): List of FID filenames to establish start time.
-        output_path (str): Directory to save output CSV.
-        output_name (str): Name of the CSV file to write.
-
-    Returns:
-        pd.DataFrame: Combined chromatogram DataFrame indexed by time (if computed), otherwise None.
-    """
-    output_file = os.path.join(output_path, output_name)
-
-    # Always reconstruct datetime_start from fid_reference_list
-    start_times = []
-    for fid in fid_reference_list:
-        fid_time_str = fid.split('FID_')[-1].split('.txt')[0]
-        fid_datetime = pd.to_datetime(fid_time_str, format='%d-%b-%Y %H_%M', errors='coerce')
-        start_times.append(fid_datetime)
-    datetime_start = min(start_times) if start_times else None # Use earliest time as reference point
-
-    # If output file exists, just load and return it with datetime_start
-    if os.path.isfile(output_file):
-        print(f"[INFO] Data is already loaded: {output_name} exists in {output_path}.")
-        df_combined = pd.read_csv(output_file, index_col=0, low_memory=False)
-        return df_combined, datetime_start 
-
-    chromatogram_dict = {}
-
-    #Step 2: Process each file in the chromatogram file list
-    for file_path in file_list: #Read the data: skip metadata rows and load columns as Time, Step, and Value
-        df = pd.read_csv(file_path, names=['Time', 'Step', 'Value'], sep='\t', skiprows=43)
-        df = df.replace(',', '', regex=True) # Remove commas if present
-
-        filename = os.path.basename(file_path) # Extract file name from full path
-        if file_type not in filename:
-            raise ValueError(f"Expected '{file_type}' in filename but got: {filename}")
-
-        #Extract timestamp portion from filename
-        time_raw = filename.split('.txt')[0].split(file_type)[-1]
-        parts = time_raw.split('_')
-        if len(parts) < 3:
-            raise ValueError(f"Filename format not recognized for timestamp extraction in: {filename}")
-        time_str = parts[1] + '_' + parts[2] #Build timestamp string like '27-Feb-2025_14_30'
-
-        # Convert extracted string into datetime object
-        file_datetime = pd.to_datetime(time_str, format='%d-%b-%Y %H_%M', errors='coerce')
-        delta_minutes = round((file_datetime - datetime_start).total_seconds() / 60)
-
-        # Add to dict using minutes-from-start as column key
-        chromatogram_dict[delta_minutes] = df['Value']
-        chromatogram_dict['Time'] = df['Time']
-
-    # Step 3: Construct final DataFrame
-    df_combined = pd.DataFrame.from_dict(chromatogram_dict)
-    df_combined.index = df['Time']
-    df_combined = df_combined.drop(columns='Time')
-
-    # Step 4: Save to CSV
-    df_combined.to_csv(output_file, index=True)
-    print(f"[INFO] Chromatogram saved to: {output_file}")
-
-    return df_combined, datetime_start
-
 def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC', 'TWOSTAGE'], output_path=None, output_name=None):
     """
     Processes chromatogram files for a given setup ('HTHPGC' or 'FTGC'),
@@ -415,7 +345,6 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC', 'TWOST
 
     print(f"[INFO] Chromatogram saved to: {output_file}")
     return gc_combined, datetime_start
-
 
 def plot_chromatogram(
     df_list,
@@ -680,8 +609,6 @@ def calculate_conversion_based_on_reactant(df, reactant, reactant_initial_concen
     conversion_df = ((reactant_initial_concentration - reactant_amount) / reactant_initial_concentration) * 100
     conversion_df.name = f"{reactant} conversion (%)"
     return conversion_df
-
-
 
 def calculate_product_conversions(df, products, reactant_initial_concentration):
     """
