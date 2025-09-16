@@ -1,0 +1,743 @@
+Example_data:
+    experiment_name: Ex000 Example_data
+    folder_name: DRIFTS OOP script example data
+    description: data used to make an OOP analysis script
+    notes: based on the data from Ra01perp_COox_001
+    
+    experiment_type: CO_oxidation
+    setup: DeNOx
+    
+    reaction_gas: CO
+    pretreatment: H2
+
+    root: D:/OneDrive - Universiteit Utrecht/Uni/PhD/Scripts/
+
+    logfile: /data/
+    spectra: /data/
+    gc: /GC/
+
+    catalyst:
+        metal: Ex
+        support: example
+        catalyst_code: Ex00
+        
+HTE002_CAL005_COox_001:
+    experiment_name: HTE002_CAL005_COox_001
+    folder_name: 250502 HTE002_CAL005_COox_001 Comparison with HTE cat
+    description: HTE catalyst 1% Rh/SBA (sieved)
+    notes: Very nice bands, almost no lin-CO-Rh0
+    
+    experiment_type: CO_oxidation
+    setup: DeNOx
+    
+    reaction_gas: CO
+    pretreatment: H2
+
+    root: D:/OneDrive - Universiteit Utrecht/Uni/PhD/Students/Jakob Güldenberg/Research-Data-Jan/DRIFTS-Experiments/
+
+    logfile: /data/
+    spectra: /data/
+    gc: /GC/
+
+    catalyst:
+        metal: Rh
+        support: SBA (alumina)
+        catalyst_code: HTE_002_CAL005
+
+RCI_001_FTS_Co10Re02TiO2:
+    experiment_name: 20250121-Co10Re02TiO2-3CO_24H2_8Ar_250C_24H/
+    folder_name: 20250121-Co10Re02TiO2-3CO_24H2_8Ar_250C_24H/
+    description: CO hydrogenation with Co10Re02TiO2 catalyst, 
+    notes: 1st test of the Co10Re02TiO2 catalyst, 25 hours on stream, 3CO, 24H2, 8Ar, 250C, 25H, low pressure
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+
+    experiment_type: CO_hydrogenation
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 450
+    T_reaction: 250
+    reactant_conc:
+      CO: 0.08571429
+      CO2: 0.0 
+      H2: 0.68571429
+      Ar: 0.22857143
+      N2: 0
+      He: 0
+    IntStand: Ar
+    ISConc: 0.22857143
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.905]
+            two_point_baseline: false
+        C2:
+            range: [1.905, 2.01]
+            two_point_baseline: false
+        C3:
+            range: [2.01, 2.26133]
+            two_point_baseline: true
+        C4:
+            range: [2.32625, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [3.53, 3.95]
+            two_point_baseline: true
+        CO:
+            range: [8, 9.25]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true   
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter: Re  
+        catalyst_code: Co10Re02TiO2
+        Co_loading: 10
+        weight:
+
+RCI_002_FTS_Co10TiO2:
+    experiment_name: 20250131-Co10TiO2-6CO_24H2_8Ar_250C_24H/
+    folder_name: 20250131-Co10TiO2-6CO_24H2_8Ar_250C_24H/
+    description: CO hydrogenation with Co10TiO2 catalyst, 
+    notes: 1st test of the Co10TiO2 catalyst, 25 hours on stream, 6CO, 24H2, 2Ar, 6N2, 250C, 25H, low pressure
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: CO_hydrogenation
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 450
+    T_reaction: 250
+    reactant_conc:
+      CO: 0.15789474
+      CO2: 0.0 
+      H2: 0.63157895
+      Ar: 0.05263157
+      N2: 0.15789474
+      He: 0
+    IntStand: Ar
+    ISConc: 0.05263157
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.90]
+            two_point_baseline: false
+        C2:
+            range: [1.90, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.75, 9.5]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true     
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co10TiO2
+        Co_loadingg: 10
+        weight:
+
+RCI_003_FTS_Co20TiO2:
+    experiment_name: 20250226-Co20TiO2-9CO_18H2_3Ar_5N2_250C_24H_20BarCo20TiO2/
+    folder_name: 20250226-Co20TiO2-9CO_18H2_3Ar_5N2_250C_24H_20BarCo20TiO2/
+    description: FTS with Co20/TiO2 - Steady state, 
+    notes: 1st test of the Co20TiO2 catalyst at 20 Barg, 25 hours on stream, 9CO, 18H2, 3Ar, 5N2, 250C, 25H, 
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 450
+    T_reaction: 250
+    reactant_conc:
+      CO: 0.25714286
+      CO2: 0.0 
+      H2: 0.51428571
+      Ar: 0.08571429
+      N2: 0.14285714
+      He: 0
+    IntStand: Ar
+    ISConc: 0.08571429
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.90]
+            two_point_baseline: false
+        C2:
+            range: [1.90, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.75, 9.5]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true  
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true       
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter: 
+        catalyst_code: Co20TiO2
+        Co_loading: 20
+        weight:
+
+RCI_004_FTS_Co10Re02TiO2:
+    experiment_name: 20250407-Co10Re02TiO2-10CO-20H2-3Ar-7N2-250C-10Bar-350Red/
+    folder_name: 20250407-Co10Re02TiO2-10CO-20H2-3Ar-7N2-250C-10Bar-350Red/
+    description: FTS with Co10Re02/TiO2 - Steady state, 
+    notes: Reduction at 350C, Co10Re02TiO2 catalyst at 20 Barg, 50 hours on stream, 10CO, 20H2, 3Ar, 7N2, 250C, 50Hours, 
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 350
+    T_reaction: 250
+    reactant_conc:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.075
+      N2: 0.175
+      He: 0
+    IntStand: Ar
+    ISConc: 0.075
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.90]
+            two_point_baseline: false
+        C2:
+            range: [1.90, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.75, 9.5]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true  
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true    
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter: Re
+        catalyst_code: Co10Re02TiO2
+        Co_loading: 10
+        weight:
+
+RCI_005_FTS_Co20TiO2:
+    experiment_name: 20250410-Co20TiO2-220FTS20Bar-10C_20H2_3Ar_7N2-450Red/
+    folder_name: 20250410-Co20TiO2-220FTS20Bar-10C_20H2_3Ar_7N2-450Red/
+    description: FTS with Co20/TiO2 - Steady state, 
+    notes: Reduction at 450C, Co20TiO2 catalyst at 20 Barg, 50 hours on stream, First 24 hours at 10CO, 20H2, 3Ar, 7N2, 220C, Then 26 hours at 12CO, 24H2, 3Ar, 1N2, 220C,
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 450
+    T_reaction: 220
+    reactant_conc1:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.075
+      N2: 0.175
+      He: 0
+    reactant_conc:
+      CO: 0.3
+      CO2: 0.0 
+      H2: 0.6
+      Ar: 0.075
+      N2: 0.025
+      He: 0
+    IntStand: Ar
+    ISConc: 0.075
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.895]
+            two_point_baseline: false
+        C2:
+            range: [1.895, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.75, 9.5]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true       
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co20TiO2
+        Co_loading: 20
+        weight: 0.223
+
+RCI_AGL_PVL_006_FTS_Co10TiO2:
+    experiment_name: 20250428-AGL-PVL-Co10TiO2-20Bar-10CO_20H2_3Ar_7N2-410Red-220FTS/
+    folder_name: 20250428-AGL-PVL-Co10TiO2-20Bar-10CO_20H2_3Ar_7N2-410Red-220FTS/
+    description: FTS with Co10/TiO2 - Steady state, 
+    notes: Reduction at 410C, Co10TiO2 catalyst at 20 Barg, 50 hours on stream, 10CO, 20H2, 3Ar, 7N2, 220C, 50Hours, 
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 410
+    T_reaction: 220
+    reactant_conc:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.075
+      N2: 0.175
+      He: 0
+    IntStand: Ar
+    ISConc: 0.075
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.895]
+            two_point_baseline: false
+        C2:
+            range: [1.895, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.75, 9.5]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true   
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true    
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co10TiO2
+        Co_loading: 10
+        weight: 0.23448
+
+RCI_AGL_PVL_007_FTS_Co20TiO2:
+    experiment_name: 20250502-Co20TiO2-20Bar-10CO_20H2_3Ar_7N2-410Red-220FTS/
+    folder_name: 20250502-Co20TiO2-20Bar-10CO_20H2_3Ar_7N2-410Red-220FTS/
+    description: FTS with Co20/TiO2 - Steady state, 
+    notes: Reduction at 410C, Co10TiO2 catalyst at 20 Barg, 50 hours on stream, 10CO, 20H2, 3Ar, 7N2, 220C, 50Hours, 
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 410
+    T_reaction: 220
+    reactant_conc:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.075
+      N2: 0.175
+      He: 0
+    IntStand: Ar
+    ISConc: 0.075
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.898]
+            two_point_baseline: false
+        C2:
+            range: [1.898, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.75, 9.25]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true 
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true      
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co20TiO2
+        Co_loading: 20
+        weight: 0.22295
+
+RCI_AGL_009_FTS_NH3Co20TiO2:
+    experiment_name: 20250606-NH3Co20TiO2-20Bar-10Co-20H2-4Ar-6N2-180-250FTS/
+    folder_name: 20250606-NH3Co20TiO2-20Bar-10Co-20H2-4Ar-6N2-180-250FTS/
+    description: FTS with Co20/TiO2 - Steady state and temperature ramp, 
+    notes: NH3 annealing at 250 C, reduction at 250 C, 50 hours on stream, 20 barg, 10CO, 20H2, 3Ar, 7N2, 220C, 50Hours, 
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, NH3
+    T_reduction: 250
+    T_reaction: [180, 250]
+    reactant_conc:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.1
+      N2: 0.15
+      He: 0
+    IntStand: Ar
+    ISConc: 0.1
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.895]
+            two_point_baseline: false
+        C2:
+            range: [1.895, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.75, 9.25]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true  
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true 
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co20TiO2
+        Co_loading: 20
+        weight: 0.2413
+
+RCI_AGL_012_FTS_NH3Co10TiO2:
+    experiment_name: 20250616-NH3Co10TiO2-20bar-10CO-20H2-4Ar-6N2-250red-180-250FTS/
+    folder_name: 20250616-NH3Co10TiO2-20bar-10CO-20H2-4Ar-6N2-250red-180-250FTS/
+    description: FTS with NH3 annealed catalysts Co10/TiO2 Temperture program, 
+    notes: NH3 annealing at 50 C, reduction at 250 C, 50 hours on stream, 20 barg, 10CO, 20H2, 3Ar, 7N2, 220C, 50Hours, no GC at temperature ramp 
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, NH3
+    T_reduction: 250
+    T_reaction: 220
+    reactant_conc:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.1
+      N2: 0.15
+      He: 0
+    IntStand: Ar
+    ISConc: 0.1
+    
+    logfile: log/
+    gc: chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.89]
+            two_point_baseline: false
+        C2:
+            range: [1.89, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.7, 9.25]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.8767]
+            two_point_baseline: true 
+        N2:
+            range: [5.8767, 6.4]
+            two_point_baseline: true    
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true 
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co10TiO2
+        Co_loading: 10
+        weight: 0.2312
+
+RCI_013_FTS_Co20TiO2:
+    experiment_name: 20250707-Co20TiO2-20Bar-10CO_20H2_6N2_4Ar-410Red-180-250FTS/
+    folder_name: 20250707-Co20TiO2-20Bar-10CO_20H2_6N2_4Ar-410Red-180-250FTS/
+    description: FTS with Co20/TiO2 steady state - Temperture program 
+    notes: Steady state and temperature programm
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 410
+    T_reaction: [180, 250]
+    reactant_conc:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.1
+      N2: 0.15
+      He: 0
+    IntStand: Ar
+    ISConc: 0.1
+    
+    logfile: /log/
+    gc: /chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.9]
+            two_point_baseline: false
+        C2:
+            range: [1.9, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.6, 9.2]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.83]
+            two_point_baseline: true
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.7]
+            two_point_baseline: true  
+
+
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co20TiO2
+        Co_loading: 20
+        weight: 0.228
+
+RCI_014_FTS_Co20TiO2:
+    experiment_name: 20250904_Co20TiO2Red_20Bar_10CO_20H2_4Ar_6N2_410and250red-180-250FTS/
+    folder_name: 20250904_Co20TiO2Red_20Bar_10CO_20H2_4Ar_6N2_410and250red-180-250FTS/
+    description: FTS with exsitu reduced Co20/TiO2 steady state - Temperture program 
+    notes: Steady state and temperature programm
+    root: C:/Users/6855245/OneDrive - Universiteit Utrecht/PhD/Results/FTS catalytic tests/Processed_data/raw_data/
+    experiment_type: FTS
+    setup: FTGC
+    
+    pretreatment: H2, N2
+    T_reduction: 410
+    T_reaction: [180, 250]
+    reactant_conc:
+      CO: 0.25
+      CO2: 0.0 
+      H2: 0.5
+      Ar: 0.1
+      N2: 0.15
+      He: 0
+    IntStand: Ar
+    ISConc: 0.1
+    
+    logfile: /log/
+    gc: /chromatograms/
+    FID_peaks:
+        C1:
+            range: [1.84, 1.905]
+            two_point_baseline: false
+        C2:
+            range: [1.905, 2.00]
+            two_point_baseline: false
+        C3:
+            range: [2.00, 2.26]
+            two_point_baseline: true
+        C4:
+            range: [2.32, 2.73]
+            two_point_baseline: true
+    TCDLeft_peaks:
+        CO2:
+            range: [2.1, 2.4]
+            two_point_baseline: true
+        CO:
+            range: [7.4, 8.8]
+            two_point_baseline: true
+        Ar:
+            range: [5.45, 5.83]
+            two_point_baseline: true
+        N2:
+            range: [5.83, 6.4]
+            two_point_baseline: true    
+
+    TCDRight_peaks:
+        H2:
+            range: [2.2, 2.8]
+            two_point_baseline: true  
+
+    ghsv: 9866.67
+    catalyst:
+        metal: Co
+        support: TiO2
+        promoter:
+        catalyst_code: Co10TiO2
+        Co_loading: 20
+        weight: 0.225
