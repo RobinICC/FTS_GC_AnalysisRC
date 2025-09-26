@@ -3,6 +3,7 @@ from scipy import integrate
 import os
 from typing import Literal
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
 import numpy as np
 import yaml
 
@@ -348,51 +349,57 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC', 'TWOST
 
 def plot_chromatogram(
     df_list,
-    labels=None,
+    channels=None,
     tos_range=None,
-    show_legend=False,
     show_peaks=False,
     peak_dict=None,
-    colormap='viridis'
+    colormap='viridis',
+    plot_colorbar=True
 ):
     """
     Plots layered chromatograms from multiple DataFrames with optional peak annotations.
 
     Parameters:
         df_list (list of pd.DataFrame): List of chromatogram DataFrames.
-        labels (list of str): Labels corresponding to each DataFrame.
-        tos_range (tuple): Time-on-stream range (min, max) to filter columns.
-        show_legend (bool): Whether to show the legend.
+        channels (list of str): Labels corresponding to each DataFrame.
+        tos_range (tuple): Time-on-stream range (min, max) to filter columns. 
+                           If None, full range is used.
         show_peaks (bool): Whether to annotate predefined peak regions.
         peak_dict (dict): Dictionary of peaks per channel, e.g., {'FID': FID_peaks}.
         colormap (str): Matplotlib colormap name (e.g., 'viridis', 'turbo').
+        plot_colorbar (bool): Whether to add a shared colorbar for TOS.
     """
     n = len(df_list)
-    labels = labels if labels else [f"Channel {i+1}" for i in range(n)]
+    channels = channels if channels else [f"Channel {i+1}" for i in range(n)]
     fig, axes = plt.subplots(n, 1, figsize=(12, 3.5 * n), sharex=True)
 
     if n == 1:
         axes = [axes]
 
-    for i, (df, label) in enumerate(zip(df_list, labels)):
+    # Collect global TOS values for normalization
+    all_tos_vals = []
+    for df in df_list:
+        all_tos_vals.extend([float(col) for col in df.columns])
+    if tos_range is None:
+        tos_range = (min(all_tos_vals), max(all_tos_vals))
+
+    # Setup colormap + normalization
+    cmap = plt.get_cmap(colormap)
+    norm = Normalize(vmin=tos_range[0], vmax=tos_range[1])
+
+    for i, (df, label) in enumerate(zip(df_list, channels)):
         ax = axes[i]
-        # Determine TOS range dynamically if not provided
-        if tos_range is None:
-            col_floats = [float(col) for col in df.columns]
-            min_tos = min(col_floats)
-            max_tos = max(col_floats)
-            tos_range = (min_tos, max_tos)
+
         # Filter by TOS range
         cols = [col for col in df.columns if tos_range[0] <= float(col) <= tos_range[1]]
         df_sub = df[cols]
 
-        # Get colors
-        cmap = plt.get_cmap(colormap)
-        clr = cmap(np.linspace(0, 1, len(df_sub.columns)))
+        # Colors based on TOS values
+        clr = [cmap(norm(float(col))) for col in df_sub.columns]
 
         # Plot each chromatogram
         for j, col in enumerate(df_sub.columns):
-            ax.plot(df_sub.index, df_sub[col], color=clr[j], label=f"TOS {col} min" if show_legend else None)
+            ax.plot(df_sub.index, df_sub[col], color=clr[j])
         ax.set_title(f"{label}")
         ax.set_ylabel("Signal (a.u.)")
 
@@ -407,16 +414,21 @@ def plot_chromatogram(
                 for compound, (start, end), _ in peak_dict[matched_key]:
                     ax.axvline(start, color='gray', linestyle='--', linewidth=1)
                     ax.axvline(end, color='gray', linestyle='--', linewidth=1)
-                    ax.text((start + end)/2, ax.get_ylim()[1]*0.9, compound,
-                            rotation=90, ha='center', va='top', fontsize=9, color='black')
+                    ax.text(
+                        (start + end)/2, ax.get_ylim()[1]*0.9, compound,
+                        rotation=90, ha='center', va='top', fontsize=9, color='black'
+                    )
 
-        if show_legend:
-            ax.legend(loc='upper right', fontsize=8)
+    # Shared colorbar
+    if plot_colorbar:
+        sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+        sm.set_array([])
+        cbar = fig.colorbar(sm, ax=axes, location='right', pad=0.02)
+        cbar.set_label("TOS (min)")
 
     axes[-1].set_xlabel("Retention Time (min)")
-    plt.tight_layout()
+    fig.subplots_adjust(right=0.78)
     plt.show()
-
 def baseline_correct_column(col, time_index, start, end):
     # Select the baseline window values for this column based on the provided time index.
     baseline_values = col[ (time_index >= start) & (time_index <= end) ]
