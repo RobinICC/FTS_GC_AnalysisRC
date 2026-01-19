@@ -1,0 +1,53 @@
+{
+  "build": "h818238b_32",
+  "build_number": 32,
+  "channel": "https://conda.anaconda.org/conda-forge/win-64",
+  "constrains": [
+    "vs2015_runtime 14.44.35208.* *_32"
+  ],
+  "depends": [
+    "ucrt >=10.0.20348.0"
+  ],
+  "extracted_package_dir": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\vcomp14-14.44.35208-h818238b_32",
+  "files": [
+    "Library/bin/vcomp140.dll",
+    "vcomp140.dll",
+    ".nonadmin"
+  ],
+  "fn": "vcomp14-14.44.35208-h818238b_32.conda",
+  "license": "LicenseRef-MicrosoftVisualCpp2015-2022Runtime",
+  "link": {
+    "source": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\vcomp14-14.44.35208-h818238b_32",
+    "type": 1
+  },
+  "md5": "58f67b437acbf2764317ba273d731f1d",
+  "name": "vcomp14",
+  "package_tarball_full_path": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\vcomp14-14.44.35208-h818238b_32.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/bin/vcomp140.dll",
+        "no_link": true,
+        "path_type": "hardlink",
+        "sha256": "e7e50211906ab1c6226a3133fda8d8c8e35a23a8b6c6133c9606601604680b85",
+        "sha256_in_prefix": "e7e50211906ab1c6226a3133fda8d8c8e35a23a8b6c6133c9606601604680b85",
+        "size_in_bytes": 193184
+      },
+      {
+        "_path": "vcomp140.dll",
+        "path_type": "hardlink",
+        "sha256": "e7e50211906ab1c6226a3133fda8d8c8e35a23a8b6c6133c9606601604680b85",
+        "sha256_in_prefix": "e7e50211906ab1c6226a3133fda8d8c8e35a23a8b6c6133c9606601604680b85",
+        "size_in_bytes": 193184
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "f3790c88fbbdc55874f41de81a4237b1b91eab75e05d0e58661518ff04d2a8a1",
+  "size": 114846,
+  "subdir": "win-64",
+  "timestamp": 1760418593000,
+  "url": "https://conda.anaconda.org/conda-forge/win-64/vcomp14-14.44.35208-h818238b_32.conda",
+  "version": "14.44.35208"
+}

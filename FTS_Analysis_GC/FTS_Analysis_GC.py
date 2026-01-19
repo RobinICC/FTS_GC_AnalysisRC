@@ -346,7 +346,7 @@ def chromatogramAll(file_list, setup: Literal['HTHPGC', 'FTGC', 'LPIRGC', 'TWOST
 
     print(f"[INFO] Chromatogram saved to: {output_file}")
     return gc_combined, datetime_start
-1+1
+
 def plot_chromatogram(
     df_list,
     channels=None,
@@ -429,6 +429,7 @@ def plot_chromatogram(
     axes[-1].set_xlabel("Retention Time (min)")
     fig.subplots_adjust(right=0.78)
     plt.show()
+    
 def baseline_correct_column(col, time_index, start, end):
     # Select the baseline window values for this column based on the provided time index.
     baseline_values = col[ (time_index >= start) & (time_index <= end) ]
@@ -552,15 +553,20 @@ def plot_comined_overview(
         ax1_label (str): Y-axis label for chromatogram result plot
         ax1_title (str): Title for chromatogram result plot
     """
-    # X-axis setup
-    if plot_against.lower() == 'datetime':
-        x_axis = combined_df['DateTime']
-        x_label = 'Date/Time'
-    else:
-        x_axis = combined_df.index
-        x_label = 'Time on Stream (min)'
 
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(16, 9), sharex=True)
+    # X-axis setup
+    combined_df = combined_df.copy()
+    combined_df['Timestamp'] = pd.to_datetime(combined_df['Timestamp'], errors='coerce')
+    t0 = combined_df['Timestamp'].min()
+
+    if plot_against.lower() == 'datetime':
+        x_axis, x_label = combined_df['Timestamp'], 'Date/Time'
+    elif plot_against.lower() == 'tos':
+        x_axis, x_label = (combined_df['Timestamp'] - t0).dt.total_seconds() / 60, 'Time on Stream (min)'
+    else:
+        x_axis, x_label = combined_df.index, 'Injection Number'
+
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 9), sharex=True)
 
     # --- Top Plot: Integration values ---
     for gas in integration_gases:
@@ -594,10 +600,6 @@ def plot_comined_overview(
     ax3.legend(loc='upper right')
     ax3.set_title(f'Gas Flows over {x_label}')
 
-    # Apply TOS xticks if relevant
-    if plot_against.lower() == 'tos':
-        ax3.set_xticks(np.arange(combined_df.index.min(), combined_df.index.max() + 1, 200))
-
     # Apply xlim if provided
     if xlim:
         ax1.set_xlim(xlim)
@@ -605,7 +607,7 @@ def plot_comined_overview(
     plt.tight_layout()
     plt.show()
 
-def calculate_conversion_based_on_reactant(df, reactant, reactant_initial_concentration):
+def calculate_conversion_based_on_reactant(df, reactant, reactant_initial_concentration, total_flow='Ftot,in'):
     """
     Calculates conversion (%) for a single reactant.
 
@@ -617,12 +619,14 @@ def calculate_conversion_based_on_reactant(df, reactant, reactant_initial_concen
     Returns:
         pd.Series: Conversion (%) over time with name 'X conversion (%)'.
     """
-    reactant_amount = df[reactant]
-    conversion_df = ((reactant_initial_concentration - reactant_amount) / reactant_initial_concentration) * 100
+    
+    reactant_out = df[reactant]
+    reactant_in = df[total_flow] * reactant_initial_concentration
+    conversion_df = ((reactant_in - reactant_out) / reactant_in) * 100
     conversion_df.name = f"{reactant} conversion (%)"
     return conversion_df
 
-def calculate_product_conversions(df, products, reactant_initial_concentration):
+def calculate_product_conversions(df, products, reactant_initial_concentration, total_flow='Ftot,in'):
     """
     Calculates conversion (%) separately for each product over TOS.
 
@@ -636,11 +640,13 @@ def calculate_product_conversions(df, products, reactant_initial_concentration):
     """
     interpolated_df = df[products].ffill()     # Interpolate missing data if any (forward fill)
     conversion_df = pd.DataFrame(index=interpolated_df.index)  # Initialize a DataFrame to store conversions
+    reactant_in = df[total_flow] * reactant_initial_concentration
     for product in products:    # Calculate conversion for each product separately
         converted = interpolated_df[product]
-        conversion = (1 - ((reactant_initial_concentration - converted) / reactant_initial_concentration)) * 100
+        conversion = (1 - ((reactant_in - converted) / reactant_in)) * 100
         conversion_df[f"{product} conversion (%)"] = conversion
     return conversion_df
+
 
 def plot_experiment_results(
     metadata_path: str,
@@ -711,6 +717,12 @@ def plot_experiment_results(
     plt.tight_layout()
     plt.show()
 
+def calculate_molar_flow(flow, p=1.0132525, T=20):
+    R = 8.31446261815324   # J/(mol·K)
+    flow_m3_min = flow * 1e-6  # Convert mL/min to m^3/min
+    P = p * 1e5  # Convert bar to Pa
+    molar_flow = (P * flow_m3_min) / (R * (T+273.15))  # Molar flow in mol/min
+    return molar_flow
 
 def collect_chromatogram(experiment_path):
     """

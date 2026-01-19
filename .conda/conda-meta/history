@@ -1,0 +1,22 @@
+==> 2025-10-17 13:37:23 <==
+# cmd: C:\Users\robin\AppData\Local\spyder-6\Scripts\conda-script.py create --yes --prefix c:\Users\robin\OneDrive - Universiteit Utrecht\PhD\Results\FTS catalytic tests\FTS_GC_AnalysisRC\.conda python=3.13
+# conda version: 24.5.0
++conda-forge/noarch::ca-certificates-2025.10.5-h4c7d964_0
++conda-forge/noarch::pip-25.2-pyh145f28c_0
++conda-forge/noarch::python_abi-3.13-8_cp313
++conda-forge/noarch::tzdata-2025b-h78e105d_0
++conda-forge/win-64::bzip2-1.0.8-h0ad9c76_8
++conda-forge/win-64::libexpat-2.7.1-hac47afa_0
++conda-forge/win-64::libffi-3.4.6-h537db12_1
++conda-forge/win-64::liblzma-5.8.1-h2466b09_2
++conda-forge/win-64::libmpdec-4.0.0-h2466b09_0
++conda-forge/win-64::libsqlite-3.50.4-hf5d6505_0
++conda-forge/win-64::libzlib-1.3.1-h2466b09_2
++conda-forge/win-64::openssl-3.5.4-h725018a_0
++conda-forge/win-64::python-3.13.9-hdf00ec1_100_cp313
++conda-forge/win-64::tk-8.6.13-h2c6b04d_2
++conda-forge/win-64::ucrt-10.0.26100.0-h57928b3_0
++conda-forge/win-64::vc-14.3-h2b53caa_32
++conda-forge/win-64::vc14_runtime-14.44.35208-h818238b_32
++conda-forge/win-64::vcomp14-14.44.35208-h818238b_32
+# update specs: ['python=3.13']

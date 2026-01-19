@@ -1,0 +1,46 @@
+{
+  "build": "h2466b09_2",
+  "build_number": 2,
+  "channel": "https://conda.anaconda.org/conda-forge/win-64",
+  "constrains": [
+    "xz 5.8.1.*"
+  ],
+  "depends": [
+    "ucrt >=10.0.20348.0",
+    "vc >=14.2,<15",
+    "vc14_runtime >=14.29.30139"
+  ],
+  "extracted_package_dir": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\liblzma-5.8.1-h2466b09_2",
+  "files": [
+    "Library/bin/liblzma.dll",
+    ".nonadmin"
+  ],
+  "fn": "liblzma-5.8.1-h2466b09_2.conda",
+  "license": "0BSD",
+  "link": {
+    "source": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\liblzma-5.8.1-h2466b09_2",
+    "type": 1
+  },
+  "md5": "c15148b2e18da456f5108ccb5e411446",
+  "name": "liblzma",
+  "package_tarball_full_path": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\liblzma-5.8.1-h2466b09_2.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/bin/liblzma.dll",
+        "path_type": "hardlink",
+        "sha256": "4826969d1704c8a07764f1772d12b00f7dfcc70f992e43248b04c69f0bd02513",
+        "sha256_in_prefix": "4826969d1704c8a07764f1772d12b00f7dfcc70f992e43248b04c69f0bd02513",
+        "size_in_bytes": 186880
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "55764956eb9179b98de7cc0e55696f2eff8f7b83fc3ebff5e696ca358bca28cc",
+  "size": 104935,
+  "subdir": "win-64",
+  "timestamp": 1749230611000,
+  "url": "https://conda.anaconda.org/conda-forge/win-64/liblzma-5.8.1-h2466b09_2.conda",
+  "version": "5.8.1"
+}

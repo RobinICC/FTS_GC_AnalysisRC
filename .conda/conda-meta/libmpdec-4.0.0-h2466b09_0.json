@@ -1,0 +1,44 @@
+{
+  "build": "h2466b09_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/win-64",
+  "constrains": [],
+  "depends": [
+    "ucrt >=10.0.20348.0",
+    "vc >=14.2,<15",
+    "vc14_runtime >=14.29.30139"
+  ],
+  "extracted_package_dir": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\libmpdec-4.0.0-h2466b09_0",
+  "files": [
+    "Library/bin/libmpdec-4.dll",
+    ".nonadmin"
+  ],
+  "fn": "libmpdec-4.0.0-h2466b09_0.conda",
+  "license": "BSD-2-Clause",
+  "link": {
+    "source": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\libmpdec-4.0.0-h2466b09_0",
+    "type": 1
+  },
+  "md5": "74860100b2029e2523cf480804c76b9b",
+  "name": "libmpdec",
+  "package_tarball_full_path": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\libmpdec-4.0.0-h2466b09_0.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/bin/libmpdec-4.dll",
+        "path_type": "hardlink",
+        "sha256": "0144e9fb7def1a5ef02e19595fc173a8607c9e04372d1e93a9d2d89fae834f18",
+        "sha256_in_prefix": "0144e9fb7def1a5ef02e19595fc173a8607c9e04372d1e93a9d2d89fae834f18",
+        "size_in_bytes": 201216
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "fc529fc82c7caf51202cc5cec5bb1c2e8d90edbac6d0a4602c966366efe3c7bf",
+  "size": 88657,
+  "subdir": "win-64",
+  "timestamp": 1723861474000,
+  "url": "https://conda.anaconda.org/conda-forge/win-64/libmpdec-4.0.0-h2466b09_0.conda",
+  "version": "4.0.0"
+}

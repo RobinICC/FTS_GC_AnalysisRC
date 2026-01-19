@@ -1,0 +1,34 @@
+{
+  "build": "h2b53caa_32",
+  "build_number": 32,
+  "channel": "https://conda.anaconda.org/conda-forge/win-64",
+  "constrains": [],
+  "depends": [
+    "vc14_runtime >=14.42.34433"
+  ],
+  "extracted_package_dir": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\vc-14.3-h2b53caa_32",
+  "files": [
+    ".nonadmin"
+  ],
+  "fn": "vc-14.3-h2b53caa_32.conda",
+  "license": "BSD-3-Clause",
+  "link": {
+    "source": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\vc-14.3-h2b53caa_32",
+    "type": 1
+  },
+  "md5": "ef02bbe151253a72b8eda264a935db66",
+  "name": "vc",
+  "package_tarball_full_path": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\vc-14.3-h2b53caa_32.conda",
+  "paths_data": {
+    "paths": [],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "82250af59af9ff3c6a635dd4c4764c631d854feb334d6747d356d949af44d7cf",
+  "size": 18861,
+  "subdir": "win-64",
+  "timestamp": 1760418772000,
+  "track_features": "vc14",
+  "url": "https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h2b53caa_32.conda",
+  "version": "14.3"
+}

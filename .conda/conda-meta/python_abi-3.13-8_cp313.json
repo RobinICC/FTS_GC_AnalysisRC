@@ -1,0 +1,35 @@
+{
+  "build": "8_cp313",
+  "build_number": 8,
+  "channel": "https://conda.anaconda.org/conda-forge/noarch",
+  "constrains": [
+    "python 3.13.* *_cp313"
+  ],
+  "depends": [],
+  "extracted_package_dir": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\python_abi-3.13-8_cp313",
+  "files": [
+    ".nonadmin"
+  ],
+  "fn": "python_abi-3.13-8_cp313.conda",
+  "license": "BSD-3-Clause",
+  "link": {
+    "source": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\python_abi-3.13-8_cp313",
+    "type": 1
+  },
+  "md5": "94305520c52a4aa3f6c2b1ff6008d9f8",
+  "name": "python_abi",
+  "noarch": "generic",
+  "package_tarball_full_path": "C:\\Users\\robin\\AppData\\Local\\spyder-6\\pkgs\\python_abi-3.13-8_cp313.conda",
+  "package_type": "noarch_generic",
+  "paths_data": {
+    "paths": [],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "210bffe7b121e651419cb196a2a63687b087497595c9be9d20ebe97dd06060a7",
+  "size": 7002,
+  "subdir": "noarch",
+  "timestamp": 1752805902000,
+  "url": "https://conda.anaconda.org/conda-forge/noarch/python_abi-3.13-8_cp313.conda",
+  "version": "3.13"
+}
